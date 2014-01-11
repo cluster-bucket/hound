@@ -13,6 +13,12 @@ program
 logTestGroup = (testGroup) ->
   console.log "Testing #{testGroup} on #{program.path}"
 
+formatReport = () ->
+  MarkdownReporter = require '../reporter/markdown'
+  reports = sourceTree.getFormatterReports()
+  formatted = MarkdownReporter.format reports
+  formatted
+
 unless program.path
   console.log '-p, --path is required'
   return
@@ -23,17 +29,24 @@ unless program.test
 
 sourceTree = new SourceTree program.path
 
-if program.test is 'functions'
-  logTestGroup program.test
 
-  {TooManyArgumentsReportDecorator} = require './smells/f1_too_many_arguments'
-  {FlagArgumentsReportDecorator} = require './smells/f3_flag_arguments'
+
+if program.test is 'all'
+  # {TooManyArgumentsReportDecorator} = require './smells/f1_too_many_arguments'
+  # {FlagArgumentsReportDecorator} = require './smells/f3_flag_arguments'
+  {EscomplexDecorator} = require './smells/escomplex'
   {DuplicationDecorator} = require './smells/g5_duplication'
 
   report = new SimpleReportComponent()
-  report = new TooManyArgumentsReportDecorator report
-  report = new FlagArgumentsReportDecorator report
   report = new DuplicationDecorator report
+  report = new EscomplexDecorator report
+  # report = new TooManyArgumentsReportDecorator report
+  # report = new FlagArgumentsReportDecorator report
+  
   report.process sourceTree
-
-  console.log sourceTree.getReports()
+  
+  # output = JSON.stringify(sourceTree.getReports(), null, '  ')
+  # console.log output 
+  
+  formatted = formatReport()
+  console.log formatted

@@ -10,23 +10,29 @@ class DuplicationDecorator extends ReportDecorator
     blocks = {}
 
     getReport = (dupes, problem) ->
-      console.log dupes
-      report = "#{problem}: "
-      for dupe in dupes
-        report += "at #{dupe.file} #{dupe.loc.start.line}:#{dupe.loc.start.column}-#{dupe.loc.end.line}:#{dupe.loc.end.column} "
-      report
+      #console.log dupes
+      #report = "#{problem}: "
+      #for dupe in dupes
+        #report += "at #{dupe.file} #{dupe.loc.start.line}:#{dupe.loc.start.column}-#{dupe.loc.end.line}:#{dupe.loc.end.column} "
+      #report
       
     parse = (file, callback) =>
-      blocks = {}
+      # blocks = {}
       @traverse file.syntax, (node, prevNode) ->
         if node.type is 'BlockStatement'
           pushBlock node, file.path
-      reportDuplicates callback
+      # reportDuplicates callback
 
-    reportDuplicates = (callback) =>
+    reportDuplicates = (file) =>
+      report = []
       for key, dupes of blocks
-        continue unless dupes.length > 0
-        callback dupes, 'Duplicate lines'
+        continue unless dupes.length > 1
+        for dupe in dupes
+          if dupe.file is file
+            report.push dupes
+            break
+      report
+      # callback dupes, 'Duplicate lines'
 
     pushBlock = (node, filename) ->
       clone = clean _.cloneDeep node
@@ -52,10 +58,13 @@ class DuplicationDecorator extends ReportDecorator
 
     @process = (sourceTree) ->
       files = sourceTree.getFiles()
+      # Parse and store blocks for all files
       for own name, file of files
         parse file, (node, message) ->
-          report = getReport node, message
-          sourceTree.addReport name, report
+      # Report all duplicates by file
+      for own name, file of files
+        duplicates = reportDuplicates name
+        sourceTree.updateReport name, 'duplicates', duplicates
       @component.process sourceTree
 
 exports.DuplicationDecorator = DuplicationDecorator

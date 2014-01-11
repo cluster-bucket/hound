@@ -2,16 +2,20 @@
   "name": "hound",
   "version": "0.1.0",
   "description": "Test a directory of files for various smells and heuristics",
-  "main": "lib/index.coffee",
+  "main": "src/index.coffee",
   "scripts": {
-    "start": "coffee lib/index.coffee -t functions -p ./test"
+    "start": "coffee src/index.coffee -t functions -p ./test/fixtures/full"
   },
   "author": "Dustin Boston",
   "license": "GPLv3",
   "devDependencies": {
+    "mocha": "~1.17.0"
+  },
+  "dependencies": {
     "commander": "~2.1.0",
     "esprima": "~1.0.4",
     "lodash": "~2.4.1",
-    "mocha": "~1.17.0"
+    "escomplex": "~0.2.2",
+    "escomplex-ast-moz": "~0.1.5"
   }
 }
