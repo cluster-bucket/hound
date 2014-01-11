@@ -33,7 +33,7 @@ if program.test is 'functions'
   report = new SimpleReportComponent()
   report = new TooManyArgumentsReportDecorator report
   report = new FlagArgumentsReportDecorator report
-  # report = new DuplicationDecorator report
+  report = new DuplicationDecorator report
   report.process sourceTree
 
   console.log sourceTree.getReports()

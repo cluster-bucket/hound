@@ -9,14 +9,24 @@ class DuplicationDecorator extends ReportDecorator
 
     blocks = {}
 
-    getReport = (dupe) ->
-
+    getReport = (dupes, problem) ->
+      console.log dupes
+      report = "#{problem}: "
+      for dupe in dupes
+        report += "at #{dupe.file} #{dupe.loc.start.line}:#{dupe.loc.start.column}-#{dupe.loc.end.line}:#{dupe.loc.end.column} "
+      report
+      
     parse = (file, callback) =>
       blocks = {}
       @traverse file.syntax, (node, prevNode) ->
         if node.type is 'BlockStatement'
           pushBlock node, file.path
-      console.log JSON.stringify blocks
+      reportDuplicates callback
+
+    reportDuplicates = (callback) =>
+      for key, dupes of blocks
+        continue unless dupes.length > 0
+        callback dupes, 'Duplicate lines'
 
     pushBlock = (node, filename) ->
       clone = clean _.cloneDeep node

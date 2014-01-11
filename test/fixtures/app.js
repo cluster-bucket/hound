@@ -34,3 +34,6 @@ var duplicateHand = function () {
   this.parse(appendages, bones);
 }
 
+if (false === true) {
+    console.log("The sky is falling!");
+}
