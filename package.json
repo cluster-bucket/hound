@@ -2,9 +2,9 @@
   "name": "hound",
   "version": "0.1.0",
   "description": "Test a directory of files for various smells and heuristics",
-  "main": "src/index.coffee",
+  "main": "./src/index.js",
   "scripts": {
-    "start": "coffee src/index.coffee -t functions -p ./test/fixtures/full"
+    "start": ""
   },
   "author": "Dustin Boston",
   "license": "GPLv3",
