@@ -1,5 +1,15 @@
 "use strict"
 
+MOD_LOC_THRESHOLD = 500
+MOD_MAINT_THRESHOLD = 65
+MOD_DUPE_THRESHOLD = 0
+
+FUNC_LOC_THRESHOLD = 20
+FUNC_PARAMS_THRESHOLD = 3
+
+PASS_TEXT = 'PASS'
+FAIL_TEXT = 'FAIL'
+
 format = (result) ->
   result.reports.reduce ((formatted, report) ->
     formatted + formatModule(report) + "\n\n"
@@ -7,41 +17,55 @@ format = (result) ->
   
 formatProject = (result) ->
   [
-    "# Complexity report, ", (new Date()).toLocaleDateString(), "\n\n", 
-    "* First-order density: ", result.firstOrderDensity, "%\n", 
-    "* Change cost: ", result.changeCost, "%\n", 
-    "* Core size: ", result.coreSize, "%\n\n"
+    "# Complexity report, ", (new Date()).toLocaleDateString(), "\n\n"
   ].join ""
   
 formatModule = (report) ->
+
+  loc = ''
+  if report.aggregate.sloc.logical > MOD_LOC_THRESHOLD
+    loc = "* Module size: #{FAIL_TEXT} (#{report.aggregate.sloc.logical})\n"
+  
+  maint = ''
+  if Math.round(report.maintainability) > MOD_MAINT_THRESHOLD
+    maint = "* Maintainability: #{FAIL_TEXT} (#{Math.round(report.maintainability)})\n"
+  
+  dupes = ''
+  if report.duplicates.length > MOD_DUPE_THRESHOLD
+    dupes = "* Duplicate code: #{FAIL_TEXT} (#{report.duplicates.length})\n"
+  
   [
     "## ", report.path, "\n\n", 
-    "* Physical LOC: ", report.aggregate.sloc.physical, "\n", 
-    "* Logical LOC: ", report.aggregate.sloc.logical, "\n", 
-    "* Mean parameter count: ", report.params, "\n", 
-    "* Cyclomatic complexity: ", report.aggregate.cyclomatic, "\n", 
-    "* Cyclomatic complexity density: ", report.aggregate.cyclomaticDensity, "%\n", 
-    "* Maintainability index: ", report.maintainability, "\n", 
-    "* Dependency count: ", report.dependencies.length, formatFunctions(report.functions)
+    loc, maint, dupes,
+    formatFunctions(report.functions)
   ].join ""
   
 formatFunctions = (report) ->
   report.reduce ((formatted, r) ->
-    formatted + "\n" + formatFunction(r)
+    funcs = formatFunction(r)
+    if funcs
+      return formatted + "\n" + funcs
+    else
+      return formatted
   ), ""
   
 formatFunction = (report) ->
-  [
-    "* Function: **", report.name.replace("<", "&lt;"), "**\n", 
-    "    * Line No.: ", report.line, "\n", 
-    "    * Physical LOC: ", report.sloc.physical, "\n", 
-    "    * Logical LOC: ", report.sloc.logical, "\n", 
-    "    * Parameter count: ", report.params, "\n", 
-    "    * Cyclomatic complexity: ", report.cyclomatic, "\n", 
-    "    * Cyclomatic complexity density: ", report.cyclomaticDensity, "%\n", 
-    "    * Halstead difficulty: ", report.halstead.difficulty, "\n", 
-    "    * Halstead volume: ", report.halstead.volume, "\n", 
-    "    * Halstead effort: ", report.halstead.effort
-  ].join ""
+
+  loc = ''
+  if report.sloc.logical > FUNC_LOC_THRESHOLD
+    loc = "    * Function size: #{FAIL_TEXT} (#{report.sloc.logical})\n"
+    
+  params = ''
+  if report.params > FUNC_PARAMS_THRESHOLD
+    params = "    * Parameter count: #{FAIL_TEXT} (#{report.params})\n"
   
+  if loc or params
+    return [
+      "* Function: **", report.name.replace("<", "&lt;"), "**\n", 
+      "    * Line No.: ", report.line, "\n", 
+      loc, params 
+    ].join ""
+  else
+    return ''
+    
 exports.format = format
