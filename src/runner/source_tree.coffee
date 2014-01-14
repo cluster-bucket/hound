@@ -54,16 +54,16 @@ class SourceTree
     @addReport = (filename, report) ->
       reports[filename] = report or {}
       reports[filename].path = filename
-      
+
     @updateReport = (filename, key, val) ->
       return unless reports[filename]
       reports[filename][key] = val
-      
+
     @getReport = (filename) ->
       reports[filename]
 
     @getFormatterReports = () ->
-      formatterReports = 
+      formatterReports =
         reports: []
       for name, report of reports
         formatterReports.reports.push report
