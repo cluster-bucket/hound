@@ -4,7 +4,7 @@
   "description": "Test a directory of files for various smells and heuristics",
   "main": "./bin/hound",
   "scripts": {
-    "start": ""
+    "start": "node ./src/runner/index.js -r ./examples/basic/report ./examples/basic/js"
   },
   "author": "Dustin Boston",
   "license": "GPLv3",
